@@ -1,5 +1,5 @@
 //Barrier.go Template Code
-//Copyright (C) 2024 Dr. Joseph Kehoe
+//Copyright (C) 2026 Terry Huynh
 
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,6 +16,9 @@
 
 //--------------------------------------------
 // Author: Terry Huynh (C00300806)
+// Created: 14/09/2026
+// Modified by: Terry
+// Issues:
 // Helped by: C00259228, Shadrach (C00298390) and Isabel (C00303465)
 // Helped: Shadrach (C00298390) and Isabel (C00303465)
 //--------------------------------------------
@@ -37,9 +40,12 @@ func doStuff(goNum int, wg *sync.WaitGroup, theLock *sync.Mutex, sem *semaphore.
 	//we wait here until everyone has completed part A
 	theLock.Lock()
 	*count++
+	//barrier code here
+	if *count == 10 {
+		sem.Release(10)
+	}
 	theLock.Unlock()
 	sem.Acquire(ctx, 1)
-
 	fmt.Println("PartB", goNum)
 	wg.Done()
 	return true
@@ -58,17 +64,6 @@ func main() {
 
 	for i := range totalRoutines { //create the go Routines here
 		go doStuff(i, &wg, &theLock, sem, ctx, &count)
-	}
-
-	for {
-		theLock.Lock()
-
-		if count == totalRoutines {
-			sem.Release(int64(totalRoutines))
-			theLock.Unlock()
-			break
-		}
-		theLock.Unlock()
 	}
 	wg.Wait() //wait for everyone to finish before exiting
 }
